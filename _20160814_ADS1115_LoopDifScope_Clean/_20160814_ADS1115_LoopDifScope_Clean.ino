@@ -76,7 +76,7 @@ if(sensorOneCounts >= LoopThreshold){ //rapid sampling loop to capture the event
    start=millis();   
       for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //rapid ADC sampling loop
       currentADCreadings[Cycle]=adc0.getConversion(); //it takes 1.16 ms for the ADC to do a new conversion
-      //delayMicroseconds(430); //tweak this delay until your loop takes around 588ms for 500 readings
+      delayMicroseconds(430); //tweak this delay until your loop takes around 588ms for 500 readings
       }                       //The goal is to get the data requests from the arduino to match 860 samples/second    
    elapsed=millis()-start;// elapsed gives you the timebase for your samples
 
