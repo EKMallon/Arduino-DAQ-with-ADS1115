@@ -15,7 +15,6 @@ float millivolts = 0.0; // The result of applying the scale factor to the raw va
 float microamps = 0.0; // The result of applying the scale factor to the raw value
 
 int16_t start;
-int16_t finished;
 int16_t elapsed;
 uint16_t currentADCreadings[ADCcycles];  
 
@@ -39,13 +38,13 @@ void setup(void)
 #ifdef ECHO_TO_SERIAL
 Serial.println("Initializing I2C devices..."); 
 #endif
-
 adc0.initialize(); // initialize ADS1115 16 bit A/D chip
 
 #ifdef ECHO_TO_SERIAL
 Serial.println("Testing device connections...");
-Serial.println(adc0.testConnection() ? "ADS1115 connection successful" : "ADS1115 connection failed");  
 #endif
+Serial.println(adc0.testConnection() ? "ADS1115 connection successful" : "ADS1115 connection failed");  
+
 
 // To get output from this method, you'll need to turn on the 
 //#define ADS1115_SERIAL_DEBUG // in the ADS1115.h file
@@ -81,26 +80,25 @@ if(sensorOneCounts >= LoopThreshold){ //rapid sampling loop to capture the event
       }                       //The goal is to get the data requests from the arduino to match 860 samples/second    
    elapsed=millis()-start;// elapsed gives you the timebase for your samples
 
-#ifdef ECHO_TO_SERIAL
     for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop for the serial text monitor
     Serial.println(currentADCreadings[Cycle]); 
-    }  
-    //After seeing the raw readings, you have some idea how set your LoopThreshold value
-    Serial.print(F("Time for "));Serial.print(ADCcycles);Serial.print(F(" readings: "));Serial.print(elapsed);Serial.println(F(" milliseconds"));
-#endif
+    } 
 
-#ifndef ECHO_TO_SERIAL
 //Once you get your threshold set properly, you can view your output values on the serial plotter
     for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop to the serial plotter
-    //Serial.print(4000); Serial.print(" ");//this constant sets a stable upper value line to keep the plotter from rescaling - change this to suit your situation
-    //Serial.print(0); Serial.print(" ");  //this constant sets a stable lower value for the plotter 
+    Serial.print(4000); Serial.print(" ");//this constant sets a stable upper value line to keep the plotter from rescaling - change this to suit your situation
+    Serial.print(0); Serial.print(" ");  //this constant sets a stable lower value for the plotter 
     //Serial.print(200); Serial.print(" "); //You can put a line anywhere on the graph you want
     //Here I am converting the output to μA before sending it to the serial plotter
     millivolts=(currentADCreadings[Cycle]*scalefactor);
     microamps=(millivolts/5.4)*1000; //our shunt resistor was 5.4 ohms
     //Serial.println(microamps); 
-    Serial.println(currentADCreadings[Cycle]); 
+    Serial.println(microamps); 
     } // End of plotter output 
+
+#ifdef ECHO_TO_SERIAL 
+    //After seeing the raw readings, you have some idea how set your LoopThreshold value
+    Serial.print(F("Time for "));Serial.print(ADCcycles);Serial.print(F(" readings: "));Serial.print(elapsed);Serial.println(F(" milliseconds"));
 #endif
     
 } // end of the threshold triggered sampling loop
