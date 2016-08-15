@@ -10,7 +10,7 @@
 //#define ECHO_TO_SERIAL   // to print out the elapsed time for your reading loop
 
 ADS1115 adc0(ADS1115_ADDRESS_ADDR_GND); 
-float scalefactor = 0.015625F; // This is the scale factor for the default +/- 6.144 Volt Range we will use
+float scalefactor = 0.015625F; // change this to match your amplifier settings
 float millivolts = 0.0; // The result of applying the scale factor to the raw value
 float microamps = 0.0; // The result of applying the scale factor to the raw value
 
