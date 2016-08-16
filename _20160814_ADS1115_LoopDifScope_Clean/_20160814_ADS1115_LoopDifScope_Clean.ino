@@ -80,9 +80,6 @@ if(sensorOneCounts >= LoopThreshold){ //rapid sampling loop to capture the event
       }                       //The goal is to get the data requests from the arduino to match 860 samples/second    
    elapsed=millis()-start;// elapsed gives you the timebase for your samples
 
-    for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop for the serial text monitor
-    Serial.println(currentADCreadings[Cycle]); 
-    } 
 
 //Once you get your threshold set properly, you can view your output values on the serial plotter
     for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop to the serial plotter
