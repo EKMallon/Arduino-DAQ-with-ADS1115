@@ -6,8 +6,8 @@
 // your sampling "LoopThreshold" should be in order to capture "events" that cause the current to rise
 
 #define ADCcycles 450      //You can output 500 samples to the serial plotter, but the UNO runs low on mem around 450
-#define LoopThreshold 80   //change to something just slightly above your normal resting/sleeping current
-//#define ECHO_TO_SERIAL   // to print out the elapsed time for your reading loop
+#define LoopThreshold 80   // start at Zero then set to something just slightly above your normal resting/sleeping current
+//#define ECHO_TO_SERIAL   // enable to print out the raw readings and the elapsed time for your reading loop
 
 ADS1115 adc0(ADS1115_ADDRESS_ADDR_GND); 
 float scalefactor = 0.015625F; // change this to match your amplifier settings
@@ -81,6 +81,15 @@ if(sensorOneCounts >= LoopThreshold){ //rapid sampling loop to capture the event
    elapsed=millis()-start;// elapsed gives you the timebase for your samples
 
 
+#ifdef ECHO_TO_SERIAL
+    for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop for the serial text monitor
+    Serial.println(currentADCreadings[Cycle]); 
+    }  
+    //After seeing the raw readings with ECHO_TO_SERIAL, you know where to set your LoopThreshold value
+    Serial.print(F(",Time for "));Serial.print(ADCcycles);Serial.print(F(" readings: "));Serial.print(elapsed);Serial.println(F(" milliseconds"));
+#endif
+
+#ifndef ECHO_TO_SERIAL
 //Once you get your threshold set properly, you can view your output values on the serial plotter
     for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop to the serial plotter
     Serial.print(4000); Serial.print(" ");//this constant sets a stable upper value line to keep the plotter from rescaling - change this to suit your situation
@@ -92,12 +101,8 @@ if(sensorOneCounts >= LoopThreshold){ //rapid sampling loop to capture the event
     //Serial.println(microamps); 
     Serial.println(microamps); 
     } // End of plotter output 
-
-#ifdef ECHO_TO_SERIAL 
-    //After seeing the raw readings, you have some idea how set your LoopThreshold value
-    Serial.print(F("Time for "));Serial.print(ADCcycles);Serial.print(F(" readings: "));Serial.print(elapsed);Serial.println(F(" milliseconds"));
 #endif
-    
+
 } // end of the threshold triggered sampling loop
 
 }  //end of main Loop
