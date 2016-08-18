@@ -64,7 +64,7 @@ if(analogRead(analogPin) >= LoopThreshold){ //rapid sampling loop to capture the
       }  // end of rapid sampling loop  
    elapsed=millis()-start;// elapsed gives you the timebase for your samples
 
-#ifdef TEXTouput
+#ifdef TEXToutput
     for (int Cycle = 0; Cycle < ADCcycles; Cycle++) {  //output of the sample loop for the serial text monitor
     Serial.println(currentADCreadings[Cycle]); 
     }  
