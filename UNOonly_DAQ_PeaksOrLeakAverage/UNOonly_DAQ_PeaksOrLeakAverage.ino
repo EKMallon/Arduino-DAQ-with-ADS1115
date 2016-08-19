@@ -1,14 +1,15 @@
 #include <Wire.h>
 
 // UNO tethered to USB. Note that the ADC is set to use the internal 1.1volt reference so do not apply higher voltages to the analog lines.
-// You need to observe the output with the serial monitor first, to establish what your
+// Observe the output with the serial monitor enabled, to establish what your
 // your sampling "LoopThreshold" should be in order to capture "events" that cause the current to rise
 
 #define analogPin 0
-#define ADCcycles 450      //You can output 500 samples to the serial plotter, but the UNO runs low on mem around 450
-#define OVRsamples 5
-#define LoopThreshold 3  //change to something just slightly above your normal resting/sleeping current
-//#define TEXToutput   // to print out the elapsed time for your reading loop
+#define ADCcycles 450    //You can output 500 samples to the serial plotter, but I find that using a slightly lower number looks nicer
+#define OVRsamples 5     //The number of samples that get 'averaged' to produce one tick on the serial plotter
+//setting the OVRsample value to 1 (no oversampling) means only 60ms of time are displayed on the plot, values near 17 display around 1 second of time on the plot
+#define LoopThreshold 3  //the "trigger" that starts a sampling loop: change this to something just slightly above the normal resting/sleeping current before the event
+//#define TEXToutput     //enable this define for text-only output & the elapsed time for your reading loop
 
 int16_t start;
 int16_t elapsed;
@@ -19,14 +20,12 @@ int ADCoffset=2;  // this is a manual fudge factor - my ADC was reading 2 bit to
 uint16_t tempread[OVRsamples];  
 int Peakflag = 0; 
  
-// see http://www.bot-thoughts.com/2013/07/oversampling-decimation-filtering.html for more info on leaky integrator filter
 static uint32_t filtsum;
 int shift=1;
 
 float scalefactor = 1.07421F; // this is the ADC resolution/bit AFTER setting to the internal 1.1vref
 float millivolts = 0.0; // The result of applying the scale factor to the raw value
 int microamps = 0; 
-
 
 void setup(void)
 {
@@ -94,7 +93,8 @@ if(analogRead(analogPin) >= LoopThreshold){ //rapid sampling loop to capture the
 
 }  //end of main Loop
 
-/** Leaky integrator filter */
+// Leaky integrator filter
+// see http://www.bot-thoughts.com/2013/07/oversampling-decimation-filtering.html for more info on the leaky integrator filter
 uint16_t filter(uint16_t value) {
         filtsum += (value - (filtsum >> shift));
         return (filtsum >> shift);
