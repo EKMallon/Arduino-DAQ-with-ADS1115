@@ -30,7 +30,6 @@ int microamps = 0;            // only relevant to this particular application
 void setup(void)
 {
   Serial.begin(115200);  
-  Wire.begin();
   analogReference(INTERNAL);  //this sets the ADC aref voltage to 1.1v - do not apply higher voltages to the A0 line.
   
 }
