@@ -4,9 +4,9 @@
 
 #define analogPin 0
 #define ADCcycles 450    //You can output 500 samples to the serial plotter, but I find that using a slightly lower number looks nicer
-#define OVRsamples 4     //minumum value=1, The number of samples that get 'averaged' to produce one tick on the serial plotter
+#define OVRsamples 34     //minumum value=1, The number of samples that get 'averaged' to produce one tick on the serial plotter
 //setting the OVRsample value to 1 (no oversampling) means only 60ms of time are displayed on the 500 line plot, values near 17 display around 1 second of time on the plot
-#define LoopThreshold 20  //the "trigger" that starts a sampling loop: change this to something just slightly above the normal resting/sleeping current before the event
+#define LoopThreshold 10  //the "trigger" that starts a sampling loop: change this to something just slightly above the normal resting/sleeping current before the event
 
 // you find out what the resting state reading  is by first observing the output with the serial TEXT monitor:
 //#define TEXToutput     
@@ -24,7 +24,7 @@ int Peakflag = 0;                    //peak flag is set to 1/TRUE if a brief spi
 
 float scalefactor = 1.07421F; // this is the ADC resolution/bit AFTER setting to the internal 1.1vref
 float millivolts = 0.0;       // The result of applying the scale factor to the raw ADC value
-float shuntResistor =20.8;    // the value of the shunt resistor being used to track the current
+float shuntResistor =12.2;    // the value of the shunt resistor being used to track the current
 int microamps = 0;            // only relevant to the calculations I am doing
 
  // variables used in the leaky integrator filter:
@@ -36,7 +36,24 @@ void setup(void)
 {
   Serial.begin(250000);  
   analogReference(INTERNAL);  //this sets the ADC aref voltage to 1.1v - do not try to read > 1.1v on the A0 line.
-  
+
+ //=================================================================================================
+ //ADC prescaler settings 200kHz is max recommended in datasheet,  16MHz/64=250,  8 MHz/64 = 125 kHz
+ //=================================================================================================
+ //  from: http://www.gammon.com.au/adc 
+ // see http://forum.arduino.cc/index.php?topic=120004.0 for fat16lib tests of reading accuracy at faster speeds
+ // at the default ADC speed, your minimum loop time for 500 samples is ~60ms, but you can reduce that significantly at PS32
+ 
+ // the Arduino core initializes those bits. So add a statement to clear them before you set them.  
+ ADCSRA &= ~(bit (ADPS0) | bit (ADPS1) | bit (ADPS2)); // clear prescaler bits 
+ 
+ // TO CHANGE the ADC prescalar uncomment one of the following lines as required 
+ //ADCSRA |= bit (ADPS0) | bit (ADPS1);                     //  P8  expect to see significant under-reading at this speed
+ //ADCSRA |= bit (ADPS2);                                   //  PS16 see http://forum.arduino.cc/index.php?topic=120004.0 for fat16lib tests
+ //ADCSRA |= bit (ADPS0) | bit (ADPS2);                     //  PS32 probably max you can use with 10K impedance: 8MHz/32 = 250 kHz
+ //ADCSRA |= bit (ADPS1) | bit (ADPS2);                     //  PS64 Note: on 8mhz 3.3v boards 8 MHz/64 = 125 kHz = standard 128 Khz
+ ADCSRA |= bit (ADPS0) | bit (ADPS1) | bit (ADPS2);       //  PS128 = 128kHz Default for 16mhz UNO's
+
 }
 
 void loop(void)
