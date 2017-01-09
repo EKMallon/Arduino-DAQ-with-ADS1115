@@ -3,9 +3,11 @@
 // your sampling "LoopThreshold" should be in order to capture "events" that cause the current to rise
 
 #define analogPin 0
-#define ADCcycles 490    //You can output 500 samples to the serial plotter, but I find that using a slightly lower number looks nicer
-#define OVRsamples 40     //minumum value=1, The number of ADC samples that get 'averaged' to produce one tick on the serial plotter
-//setting the OVRsample value to 1 (no oversampling) means only 60ms of time are displayed on the 500 line plot, values near 17 display around 1 second of time on the plot
+#define ADCcycles 490    //You can output 500 samples to the serial plotter, but a slightly lower number looks nicer because your event doesnt start right on the y axis
+#define OVRsamples 20     
+//minumum value for OVRsamples=1, This is the number of ADC samples that get 'averaged' to produce one tick on the serial plotter
+//Change the number of oversamples to expand or shrink the time window shown on the serial plotter display
+//at the default ADC clock speed: the OVRsample value to 1 (no oversampling) means only 60ms of time are displayed on the 500 line plot, values near 17 display around 1 second of time on the plot
 #define LoopThreshold 10  //the "trigger" that starts a sampling loop: change this to something just slightly above the normal resting/sleeping current before the event
 
 // you find out what the resting state reading  is by first observing the output with the serial TEXT monitor:
@@ -49,7 +51,7 @@ void setup(void)
  // see http://forum.arduino.cc/index.php?topic=120004.0 for fat16lib tests of reading accuracy at faster speeds
  // at the default ADC speed, your minimum loop time for 500 samples is ~60ms, but you can reduce that significantly at PS32
 
- /* Prescaler settings : ~# of ADC Conversions/sec @ 16mHz clock:
+ /* Prescaler settings and approximate # of ADC Conversions/sec on an UNO with a 16mHz clock:
   2           615,385
   4           307,692
   8           153,846
@@ -63,11 +65,11 @@ void setup(void)
  ADCSRA &= ~(bit (ADPS0) | bit (ADPS1) | bit (ADPS2)); // clear prescaler bits 
  
  // TO CHANGE the ADC prescalar uncomment one of the following lines as required 
- //ADCSRA |= bit (ADPS0) | bit (ADPS1);                     //  P8  expect to see significant under-reading at this speed
- //ADCSRA |= bit (ADPS2);                                   //  PS16 see http://forum.arduino.cc/index.php?topic=120004.0 for fat16lib tests
-ADCSRA |= bit (ADPS0) | bit (ADPS2);                     //  PS32           probably max you can use with 10K impedance: 8MHz/32 = 250 kHz
+ //ADCSRA |= bit (ADPS0) | bit (ADPS1);                     //  P8  expect to see significant under-reading at this speed!
+ //ADCSRA |= bit (ADPS2);                                   //  PS16  
+ADCSRA |= bit (ADPS0) | bit (ADPS2);                     //  PS32           This is probably max you could use with 10K impedance: 8MHz/32 = 250 kHz
  //ADCSRA |= bit (ADPS1) | bit (ADPS2);                     //  PS64          Note: on 8mhz 3.3v boards 8 MHz/64 = 125 kHz = default setting
- //ADCSRA |= bit (ADPS0) | bit (ADPS1) | bit (ADPS2);       //  PS128         = 128kHz Default for 16mhz UNO's
+ //ADCSRA |= bit (ADPS0) | bit (ADPS1) | bit (ADPS2);       //  PS128         = 128kHz THIS IS THE DEFAULT VALUE for 16mhz UNO's
 
 }
 
